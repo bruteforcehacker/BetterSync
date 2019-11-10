@@ -9,6 +9,7 @@
 local Position = gui.Reference( "RAGE", "MAIN", "STAND", "Anti-Aim");
 local desyncCheckbox = gui.Checkbox( Position, "desyncCheckbox", "Desync", 0)
 local desyncCentering = gui.Checkbox( gui.Reference("RAGE", "MAIN", "Anti-Aim Main"), "desyncCentering", "Keep Head Centered", 0)
+local standMovement  = gui.Checkbox( gui.Reference("RAGE", "MAIN", "Anti-Aim Main"), "standMovement", "Stand Movement", 0)
 local desyncRange = gui.Slider( Position, "desyncRange", "Desync Width", 0, -60, 60)
 local chokeLimiter = gui.Slider(Position, "chokeLimiter", "Choke limit", 1, 1, 16)
 local twistCheckbox = gui.Checkbox( Position, "twistCheckbox", "Twist", 0)
@@ -30,9 +31,7 @@ local menuPressed = 1;
 
 local function isMoving() --- kinda made by april#0001
 
-    local local_player = entities.GetLocalPlayer()
-    local x, y, z = local_player:GetPropVector("localdata", "m_vecVelocity[0]")
-    if math.sqrt(x*x + y*y) > 0 then
+    if math.sqrt(entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[0]" )^2 + entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[1]" )^2) > 3 then
         return true
     else
         return false
@@ -208,3 +207,29 @@ callbacks.Register( "Draw", function()
     headcentering()
 end
 );
+
+local delay = globals.CurTime() + 0.05
+
+callbacks.Register( "CreateMove", function(pCmd)
+
+    local vel = math.sqrt(entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[0]" )^2 + entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[1]" )^2)
+
+    if vel > 2 then
+        del = globals.CurTime() + 0.05 
+        return 
+    end
+
+    if delay > globals.CurTime() then
+        switch = not switch
+        del = globals.CurTime() + 0.05
+    end
+
+    if gui.GetValue("standMovement") then
+        if switch then
+            pCmd:SetSideMove(2)
+        else
+            pCmd:SetSideMove(-2)
+        end
+    end
+
+end)
