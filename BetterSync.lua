@@ -8,7 +8,7 @@
 
 local Position = gui.Reference( "RAGE", "MAIN", "STAND", "Anti-Aim");
 local desyncCheckbox = gui.Checkbox( Position, "desyncCheckbox", "Desync", 0)
-local desyncCentering = gui.Checkbo3x( gui.Reference("RAGE", "MAIN", "Anti-Aim Main"), "desyncCentering", "Keep Head Centered", 0)
+local desyncCentering = gui.Checkbox( gui.Reference("RAGE", "MAIN", "Anti-Aim Main"), "desyncCentering", "Keep Head Centered", 0)
 local desyncRange = gui.Slider( Position, "desyncRange", "Desync Width", 0, -60, 60)
 local chokeLimiter = gui.Slider(Position, "chokeLimiter", "Choke limit", 1, 1, 16)
 local twistCheckbox = gui.Checkbox( Position, "twistCheckbox", "Twist", 0)
