@@ -208,7 +208,7 @@ callbacks.Register( "Draw", function()
 end
 );
 
-local delay = globals.CurTime() + 0.05
+local del = globals.CurTime() + 0.05
 
 callbacks.Register( "CreateMove", function(pCmd)
 
@@ -219,7 +219,7 @@ callbacks.Register( "CreateMove", function(pCmd)
         return 
     end
 
-    if delay > globals.CurTime() then
+    if del > globals.CurTime() then
         switch = not switch
         del = globals.CurTime() + 0.05
     end
