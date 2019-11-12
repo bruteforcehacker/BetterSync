@@ -254,49 +254,14 @@ local function headcentering() --- THIS ONLY WORKS FOR AUTO OR WEAPONS WITH SIMI
 
 end
 
-callbacks.Register( "Draw", function()
-    menu()
-    niggersync()
-    fakelag()
-    desync()
-    headcentering()
-end
-);
-
-local del = globals.CurTime() + 0.05
-
-callbacks.Register( "CreateMove", function(pCmd)
-
-    local vel = math.sqrt(entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[0]" )^2 + entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[1]" )^2)
-
-    if vel > 2 then
-        del = globals.CurTime() + 0.05 
-        return 
-    end
-
-    if del > globals.CurTime() then
-        switch = not switch
-        del = globals.CurTime() + 0.05
-    end
-
-    if gui.GetValue("standMovement") and not gui.GetValue("lbot_active") then
-        if switch then
-            pCmd:SetSideMove(2)
-        else
-            pCmd:SetSideMove(-2)
-        end
-    end
-end)
-
-
 -- Manual AA, credits to "El Credito"/gowork88#1556.
 
 local LeftKey = 0;
 local BackKey = 0;
 local RightKey = 0;
 
-local creditsManualAA = gui.Text( ManualAA, "Thanks to gowork88#1556." )
-local check_indicator = gui.Checkbox(ManualAA, "Enable", "Manual AA", false)
+local creditsManualAA = gui.Text(ManualAA, "Thanks to gowork88#1556." )
+local ManualAAEnable = gui.Checkbox(ManualAA, "Enable", "Manual AA", false)
 local AntiAimleft = gui.Keybox(ManualAA, "Anti-Aim_left", "Left Keybind", 0);
 local AntiAimRight = gui.Keybox(ManualAA, "Anti-Aim_Right", "Right Keybind", 0);
 local AntiAimBack = gui.Keybox(ManualAA, "Anti-Aim_Back", "Back Keybind", 0);
@@ -308,79 +273,9 @@ local damage_font = draw.CreateFont("Verdana", 15, 700)
 local arrow_font = draw.CreateFont("Marlett", 37, 500)
 local normal = draw.CreateFont("Arial")
 
-local function mainManualAA()
-    if (check_indicator:GetValue() ~= true) then
-        return
-    end
-
-    if AntiAimleft:GetValue() ~= 0 then
-        if input.IsButtonPressed(AntiAimleft:GetValue()) then
-            setterValue(true, false, false);
-        end
-    end
-    if AntiAimBack:GetValue() ~= 0 then
-        if input.IsButtonPressed(AntiAimBack:GetValue()) then
-            setterValue(false, false, true);
-        end
-    end
-    if AntiAimRight:GetValue() ~= 0 then
-        if input.IsButtonPressed(AntiAimRight:GetValue()) then
-        setterValue(false, true, false);
-        end
-    end
-    draw_indicator()
-end
-
-local function setterValue(left, right, back)
-    if (left) then
-        if (LeftKey == 1) then
-            LeftKey = 0
-        else
-            LeftKey = 1;RightKey = 0;zBackKey = 0
-        end
-    elseif (right) then
-        if (RightKey == 1) then
-            RightKey = 0
-        else
-            RightKey = 1;LeftKey = 0;BackKey = 0
-        end
-    elseif (back) then
-        if (BackKey == 1) then
-            BackKey = 0
-        else
-            BackKey = 1;LeftKey = 0;RightKey = 0
-        end
-    end
-    changeAA()
-end
-
-local function changeAA()
-    
-    gui.SetValue("rbot_antiaim_at_targets", false);
-    
-    if (LeftKey == 1) then
-        manualAdd = AntiAimRangeLeft:GetValue()
-        manualAdd = AntiAimRangeLeft:GetValue()
-        
-    elseif (RightKey == 1) then
-        manualAdd = AntiAimRangeRight:GetValue()
-        manualAdd = AntiAimRangeRight:GetValue()
-        gui.SetValue("rbot_antiaim_autodir", false);
-        
-    elseif (BackKey == 1) then
-        manualAdd = 0
-        manualAdd = 0
-        gui.SetValue("rbot_antiaim_autodir", false);
-        
-    elseif ((LeftKey == 0) and (RightKey == 0) and (BackKey == 0)) then
-        manualAdd = 0
-        manualAdd = 0
-    end
-end
-
 local function draw_indicator()
 
-    local active = check_indicator:GetValue()
+    local active = ManualAAEnable:GetValue()
 
     if active then
         local w, h = draw.GetScreenSize();
@@ -414,4 +309,104 @@ local function draw_indicator()
         draw.SetFont(normal)
     end
 end
-callbacks.Register( "Draw", "mainManualAA", mainManualAA);
+
+local function changeAA()
+
+    gui.SetValue("rbot_antiaim_at_targets", false);
+    
+    if (LeftKey == 1) then
+        manualAdd = AntiAimRangeLeft:GetValue()
+        manualAdd = AntiAimRangeLeft:GetValue()
+        
+    elseif (RightKey == 1) then
+        manualAdd = AntiAimRangeRight:GetValue()
+        manualAdd = AntiAimRangeRight:GetValue()
+        
+    elseif (BackKey == 1) then
+        manualAdd = 0
+        manualAdd = 0
+        
+    elseif ((LeftKey == 0) and (RightKey == 0) and (BackKey == 0)) then
+        manualAdd = 0
+        manualAdd = 0
+    end
+end
+
+local function setterValue(left, right, back)
+    if (left) then
+        if (LeftKey == 1) then
+            LeftKey = 0
+        else
+            LeftKey = 1;RightKey = 0;zBackKey = 0
+        end
+    elseif (right) then
+        if (RightKey == 1) then
+            RightKey = 0
+        else
+            RightKey = 1;LeftKey = 0;BackKey = 0
+        end
+    elseif (back) then
+        if (BackKey == 1) then
+            BackKey = 0
+        else
+            BackKey = 1;LeftKey = 0;RightKey = 0
+        end
+    end
+    changeAA()
+end
+
+local function mainManualAA()
+    if (ManualAAEnable:GetValue()) then
+        if AntiAimleft:GetValue() ~= 0 then
+            if input.IsButtonPressed(AntiAimleft:GetValue()) then
+                setterValue(true, false, false);
+            end
+        end
+        if AntiAimBack:GetValue() ~= 0 then
+            if input.IsButtonPressed(AntiAimBack:GetValue()) then
+                setterValue(false, false, true);
+            end
+        end
+        if AntiAimRight:GetValue() ~= 0 then
+            if input.IsButtonPressed(AntiAimRight:GetValue()) then
+            setterValue(false, true, false);
+            end
+        end
+        draw_indicator()
+    end 
+end
+
+callbacks.Register( "Draw", function()
+    menu()
+    mainManualAA()
+    niggersync()
+    fakelag()
+    desync()
+    headcentering()
+end
+);
+
+local del = globals.CurTime() + 0.05
+
+callbacks.Register( "CreateMove", function(pCmd)
+
+    local vel = math.sqrt(entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[0]" )^2 + entities.GetLocalPlayer():GetPropFloat( "localdata", "m_vecVelocity[1]" )^2)
+
+    if vel > 2 then
+        del = globals.CurTime() + 0.05 
+        return 
+    end
+
+    if del > globals.CurTime() then
+        switch = not switch
+        del = globals.CurTime() + 0.05
+    end
+
+    if gui.GetValue("standMovement") and not gui.GetValue("lbot_active") then
+        if switch then
+            pCmd:SetSideMove(2)
+        else
+            pCmd:SetSideMove(-2)
+        end
+    end
+end)
