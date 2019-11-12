@@ -5,13 +5,13 @@ better.
 
 # Changelog: #
 
-[Release 1.0]
+###### [Release 1.0] ######
 *Fixed misstype because i accidentally fatfingered a key while saving.
   
-[Release 1.0.1]
+###### [Release 1.0.1] ######
 *Added Stand Movement
   
-[Release 1.2]
+###### [Release 1.2] ######
 *Full menu got reworked to be in one window, window toggle moved to [RAGE -> MAIN -> Anti-Aim Main]
 *Added Legitbot support, make sure to disable the legitbot's Master Switch if you use the lua for the Ragebot/HvH,
    the lua has some safety regulations to prevent overwatch bans while using the lua for the legitbot, this includes a forced fakelag
