@@ -17,5 +17,4 @@ better.
    the lua has some safety regulations to prevent overwatch bans while using the lua for the legitbot, this includes a forced fakelag
    disable and "Stand-Movement" won't work while having the legitbot's Master Switch enabled.
 * Added Manual Antiaim with changeable left add and right add. [Thanks to gowork88#1556 for the code.]
-* Added Desync range inverter key, currently it won't work but im trying to fix it at the moment.[Note: the key is going to get
-   overwritten by NwordSync™!]
+* Added Desync range inverter key, currently it won't work but im trying to fix it at the moment.
