@@ -4,30 +4,41 @@
 --- Description: Adds the ability to change the desync width together with some other stuff.
 ---
 
---- Variables and gui stuff
+--- Main Variables and GUI stuff.
 
-local Position = gui.Reference( "RAGE", "MAIN", "STAND", "Anti-Aim");
-local desyncCheckbox = gui.Checkbox( Position, "desyncCheckbox", "Desync", 0)
-local desyncCentering = gui.Checkbox( gui.Reference("RAGE", "MAIN", "Anti-Aim Main"), "desyncCentering", "Keep Head Centered", 0)
-local standMovement  = gui.Checkbox( gui.Reference("RAGE", "MAIN", "Anti-Aim Main"), "standMovement", "Stand Movement", 0)
-local desyncRange = gui.Slider( Position, "desyncRange", "Desync Width", 0, -60, 60)
-local chokeLimiter = gui.Slider(Position, "chokeLimiter", "Choke limit", 1, 1, 16)
-local twistCheckbox = gui.Checkbox( Position, "twistCheckbox", "Twist", 0)
-local balanceIfMoving = gui.Checkbox( Position, "BalanceIfMoving", "Better moving fake", 0)
+local BetterSync_wnd = gui.Window("BetterSync", "BetterSync™", 0 , 0, 250, 820)
+local BetterSyncShowMenu = gui.Checkbox(gui.Reference("RAGE", "MAIN", "Anti-Aim Main"), "BetterSyncShow", "BetterSync", 0)
+local BetterSyncGroup = gui.Groupbox(BetterSync_wnd, "Main", 5, 10, 240, 270)
+local desyncCheckbox = gui.Checkbox( BetterSyncGroup, "desyncCheckbox", "Desync", 0)
+local desyncRange = gui.Slider( BetterSyncGroup, "desyncRange", "Desync Width", 0, -60, 60)
+local chokeLimiter = gui.Slider(BetterSyncGroup, "chokeLimiter", "Choke limit", 1, 1, 16)
+local InverterKey = gui.Keybox(BetterSyncGroup, "desyncRangeInverter", "Inverter Key", 0);
+local twistCheckbox = gui.Checkbox( BetterSyncGroup, "twistCheckbox", "Twist", 0)
+local balanceIfMoving = gui.Checkbox( BetterSyncGroup, "BalanceIfMoving", "Better moving fake", 0)
+local desyncCentering = gui.Checkbox( BetterSyncGroup, "desyncCentering", "Keep Head Centered", 0)
+local standMovement  = gui.Checkbox( BetterSyncGroup, "standMovement", "Stand Movement", 0)
 
-local NiggerSync_wnd = gui.Window("NiggerSync", "NiggerSync™", 100 , 100, 250, 280)
-local niggerSyncShowMenu = gui.Checkbox(Position, "NiggerSyncShow", "NiggerSync™", 0)
-local niggerSyncGroup = gui.Groupbox(NiggerSync_wnd, "Main", 5, 5, 240, 240 )
+local ManualAA = gui.Groupbox(BetterSync_wnd, "Manual AA", 5, 540, 240, 240 )
+
+---NiggerSync GUI Stuff
+local niggerSyncGroup = gui.Groupbox(BetterSync_wnd, "NiggerSync", 5, 290, 240, 240 )
 local niggerSyncCheckbox = gui.Checkbox( niggerSyncGroup, "niggerSyncCheckbox", "NiggerSync™ Enable", 0)
 local niggerSyncSpeed = gui.Slider( niggerSyncGroup, "niggerSyncSpeed", "NiggerSync™ Speed", 1, 0.1, 25.0)
 local niggerSyncRange1 = gui.Slider( niggerSyncGroup, "niggerSyncRange1", "NiggerSync™ Range Start", -60, -60, 60)
 local niggerSyncRange2 = gui.Slider( niggerSyncGroup, "niggerSyncRange2", "NiggerSync™ Range End", 60, -60, 60)
 local niggerSyncDeadzone = gui.Slider( niggerSyncGroup, "niggerSyncDeadzone", "NiggerSync™ Deadzone", 1, 1, 60)
 
+--- Variables for betterSync code
 local min, max = 0, 0;
 local cs, cd = min, 0;
 local niggerSyncVal;
 local menuPressed = 1;
+local manualAdd = 0;
+
+local inverterKey = 0;
+local invert;
+
+--- Actual code.
 
 local function isMoving() --- kinda made by april#0001
 
@@ -49,7 +60,29 @@ local function get_value(var, complement) --- by april#0001
 
 end
 
-function fakelag()
+local function setKeys()
+    if inverterKey == 1 then
+        invert = true;
+        draw.Text( 100, 200, "Lel" )
+    else
+        invert = false;
+    end
+end
+
+local function Keyhandler(key1)
+    if key1 then
+        if (inverterKey == 1) then
+            inverterKey = 0
+        else
+            inverterKey = 1;
+        end
+    end
+    setKeys()
+end
+
+
+
+local function fakelag()
 
     local local_player = entities.GetLocalPlayer()
 
@@ -59,24 +92,34 @@ function fakelag()
     
     local twist_label = get_value("twist", "Checkbox")
 
+    if (twistCheckbox:GetValue()) then
+        gui.SetValue("msc_fakelag_mode", 1)
+    end
+
     gui.SetValue("msc_fakelag_value", gui.GetValue(twist_label) and 2 or gui.GetValue("chokeLimiter"))
+
+    if (gui.GetValue("lbot_active")) then
+        gui.SetValue("msc_fakelag_enable", 0)
+    else
+        gui.SetValue("msc_fakelag_enable", 1)
+    end
 
 end
 
-function menu()
+local function menu()
 
     if input.IsButtonPressed(gui.GetValue("msc_menutoggle")) then
         menuPressed = menuPressed == 0 and 1 or 0;
     end
 
-    if (niggerSyncShowMenu:GetValue()) then
-        NiggerSync_wnd:SetActive(menuPressed);
+    if (BetterSyncShowMenu:GetValue()) then
+        BetterSync_wnd:SetActive(menuPressed);
     else
-        NiggerSync_wnd:SetActive(0);
+        BetterSync_wnd:SetActive(0);
     end
 end
 
-function niggersync()
+local function niggersync()
 
     local speed = gui.GetValue("niggerSyncSpeed")
 
@@ -121,7 +164,7 @@ function niggersync()
     end
 end
 
-function desync()
+local function desync()
 
     local local_player = entities.GetLocalPlayer()
 
@@ -130,8 +173,21 @@ function desync()
     end
 
     local dv = 0;
+    local width = desyncRange:GetValue();
+    local invert;
 
-    if gui.GetValue("desyncRange") < 0 then
+    if (InverterKey:GetValue() ~= 0) then
+        if (input.IsButtonPressed(InverterKey:GetValue())) then
+            Keyhandler(true)
+        end
+    end
+
+    if invert then
+        width = width * -1
+        draw.Text( 100, 200, "INVERTED" )
+    end
+
+    if width < 0 then
         dv = 3
     else
         dv = 2
@@ -154,21 +210,20 @@ function desync()
     gui.SetValue("rbot_antiaim_stand_desync", dv)
     gui.SetValue("rbot_antiaim_move_desync", dv)
     gui.SetValue("rbot_antiaim_edge_desync", dv)
+    gui.SetValue("lbot_antiaim", dv)
 
     local desync_label = gui.GetValue("desyncCheckbox")
     local desync_label = get_value("desync", "Checkbox")
 
-    local max = gui.GetValue("desyncRange")
-
     if gui.GetValue("niggerSyncCheckbox") then
-        max = niggerSyncVal;
+        width = niggerSyncVal;
     end
 
-    currentDesyncRange = max;
+    currentDesyncRange = width;
 
-    local target_angles = gui.GetValue(desync_label) and local_player:GetProp("m_angEyeAngles[1]") + max or local_player:GetProp("m_angEyeAngles[1]")
+    local FixedlowerbodyTarget = gui.GetValue(desync_label) and local_player:GetProp("m_angEyeAngles[1]") + width or local_player:GetProp("m_angEyeAngles[1]")
 
-    local_player:SetProp("m_flLowerBodyYawTarget", target_angles)  
+    local_player:SetProp("m_flLowerBodyYawTarget", FixedlowerbodyTarget)  
 end
 
 local function headcentering() --- THIS ONLY WORKS FOR AUTO OR WEAPONS WITH SIMILAR MAXDELTA BECAUSE AIMWARE DOESN'T ALLOW ME TO GET MAXDESYNCDELTA YET.
@@ -193,9 +248,9 @@ local function headcentering() --- THIS ONLY WORKS FOR AUTO OR WEAPONS WITH SIMI
         offset = 0;
     end
 
-    gui.SetValue("rbot_antiaim_stand_real_add", offset)
-    gui.SetValue("rbot_antiaim_move_real_add", offset)
-    gui.SetValue("rbot_antiaim_edge_real_add", offset)
+    gui.SetValue("rbot_antiaim_stand_real_add", offset + manualAdd)
+    gui.SetValue("rbot_antiaim_move_real_add", offset + manualAdd)
+    gui.SetValue("rbot_antiaim_edge_real_add", offset + manualAdd)
 
 end
 
@@ -224,12 +279,139 @@ callbacks.Register( "CreateMove", function(pCmd)
         del = globals.CurTime() + 0.05
     end
 
-    if gui.GetValue("standMovement") then
+    if gui.GetValue("standMovement") and not gui.GetValue("lbot_active") then
         if switch then
             pCmd:SetSideMove(2)
         else
             pCmd:SetSideMove(-2)
         end
     end
-
 end)
+
+
+-- Manual AA, credits to "El Credito"/gowork88#1556.
+
+local LeftKey = 0;
+local BackKey = 0;
+local RightKey = 0;
+
+local creditsManualAA = gui.Text( ManualAA, "Thanks to gowork88#1556." )
+local check_indicator = gui.Checkbox(ManualAA, "Enable", "Manual AA", false)
+local AntiAimleft = gui.Keybox(ManualAA, "Anti-Aim_left", "Left Keybind", 0);
+local AntiAimRight = gui.Keybox(ManualAA, "Anti-Aim_Right", "Right Keybind", 0);
+local AntiAimBack = gui.Keybox(ManualAA, "Anti-Aim_Back", "Back Keybind", 0);
+local AntiAimRangeLeft = gui.Slider(ManualAA, "AntiAimRangeLeft", "AntiAim Range Left", 0, -180, 180);
+local AntiAimRangeRight = gui.Slider(ManualAA, "AntiAimRangeRight", "AntiAim Range Right", 0, -180, 180);
+
+local rifk7_font = draw.CreateFont("Verdana", 20, 700)
+local damage_font = draw.CreateFont("Verdana", 15, 700)
+local arrow_font = draw.CreateFont("Marlett", 37, 500)
+local normal = draw.CreateFont("Arial")
+
+local function mainManualAA()
+    if (check_indicator:GetValue() ~= true) then
+        return
+    end
+
+    if AntiAimleft:GetValue() ~= 0 then
+        if input.IsButtonPressed(AntiAimleft:GetValue()) then
+            setterValue(true, false, false);
+        end
+    end
+    if AntiAimBack:GetValue() ~= 0 then
+        if input.IsButtonPressed(AntiAimBack:GetValue()) then
+            setterValue(false, false, true);
+        end
+    end
+    if AntiAimRight:GetValue() ~= 0 then
+        if input.IsButtonPressed(AntiAimRight:GetValue()) then
+        setterValue(false, true, false);
+        end
+    end
+    draw_indicator()
+end
+
+local function setterValue(left, right, back)
+    if (left) then
+        if (LeftKey == 1) then
+            LeftKey = 0
+        else
+            LeftKey = 1;RightKey = 0;zBackKey = 0
+        end
+    elseif (right) then
+        if (RightKey == 1) then
+            RightKey = 0
+        else
+            RightKey = 1;LeftKey = 0;BackKey = 0
+        end
+    elseif (back) then
+        if (BackKey == 1) then
+            BackKey = 0
+        else
+            BackKey = 1;LeftKey = 0;RightKey = 0
+        end
+    end
+    changeAA()
+end
+
+local function changeAA()
+    
+    gui.SetValue("rbot_antiaim_at_targets", false);
+    
+    if (LeftKey == 1) then
+        manualAdd = AntiAimRangeLeft:GetValue()
+        manualAdd = AntiAimRangeLeft:GetValue()
+        
+    elseif (RightKey == 1) then
+        manualAdd = AntiAimRangeRight:GetValue()
+        manualAdd = AntiAimRangeRight:GetValue()
+        gui.SetValue("rbot_antiaim_autodir", false);
+        
+    elseif (BackKey == 1) then
+        manualAdd = 0
+        manualAdd = 0
+        gui.SetValue("rbot_antiaim_autodir", false);
+        
+    elseif ((LeftKey == 0) and (RightKey == 0) and (BackKey == 0)) then
+        manualAdd = 0
+        manualAdd = 0
+    end
+end
+
+local function draw_indicator()
+
+    local active = check_indicator:GetValue()
+
+    if active then
+        local w, h = draw.GetScreenSize();
+        draw.SetFont(rifk7_font)
+        if (LeftKey == 1) then
+            draw.Color(255, 0, 0, 255)
+            draw.Text(6, h - 60, "Manual");
+            draw.TextShadow(6, h - 60, "Manual");
+            draw.SetFont(arrow_font)
+            draw.Text( w/2 - 100, h/2 - 21, "3");
+            draw.SetFont(rifk7_font)
+        elseif (BackKey == 1) then
+            draw.Color(255, 0, 0, 255)
+            draw.Text(6, h - 60, "Manual");
+            draw.TextShadow(6, h - 60, "Manual");
+            draw.SetFont(arrow_font)
+            draw.Text( w/2 - 21, h/2 + 60, "6");
+            draw.SetFont(rifk7_font)
+        elseif (RightKey == 1) then
+            draw.Color(255, 0, 0, 255);
+            draw.Text(6, h - 60, "Manual");
+            draw.TextShadow(6, h - 60, "Manual");
+            draw.SetFont(arrow_font)
+            draw.Text( w/2 + 60, h/2 - 21, "4");
+            draw.SetFont(rifk7_font)
+        elseif ((LeftKey == 0) and (BackKey == 0) and (RightKey == 0)) then
+            draw.Color(47, 255, 0, 255);
+            draw.Text(6, h - 60, "Disabled");
+            draw.TextShadow(6, h - 60, "Disabled");
+        end
+        draw.SetFont(normal)
+    end
+end
+callbacks.Register( "Draw", "mainManualAA", mainManualAA);
