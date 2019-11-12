@@ -3,11 +3,11 @@ better.
 
 Changelog:
 
-[Release 1.0
+[Release 1.0]
   -Fixed misstype because i accidentally fatfingered a key while saving.
   
 [Release 1.0.1]
-  -Added Stand Movement
+	-Added Stand Movement
   
 [Release 1.2]
   -Full menu got reworked to be in one window, window toggle moved to [RAGE -> MAIN -> Anti-Aim Main]
