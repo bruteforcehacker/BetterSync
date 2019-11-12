@@ -1,4 +1,4 @@
-# BetterSync - Release 1.2 #
+# BetterSync - Release 1.2b #
 ## What is BetterSync? ##
 BetterSync is a lua extention for the Aimware Cheat client for CS:GO, it's main purpose is to allow users to configurate the Anti-Aimbot
 better.
@@ -18,3 +18,7 @@ better.
    disable and "Stand-Movement" won't work while having the legitbot's Master Switch enabled.
 * Added Manual Antiaim with changeable left add and right add. [Thanks to gowork88#1556 for the code.]
 * Added Desync range inverter key, currently it won't work but im trying to fix it at the moment.
+
+###### [Release 1.2b] ######
+* Fixed bug where the Manual Antiaim would crash.
+
