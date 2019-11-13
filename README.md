@@ -26,3 +26,7 @@ better.
 * Fixed Inverter Key [Thanks to gowork88#1556 for telling me my issue]
 * Added Automatic updates by ShadyRetard/Shady#0001
 
+# Contact: #
+* E-Mail: superyu.development@gmail.com
+* Discord: superyu'#7167
+* Steam: https://steamcommunity.com/id/Superyu1337/
