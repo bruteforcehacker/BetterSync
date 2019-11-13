@@ -10,6 +10,9 @@ better.
   
 ###### [Release 1.0.1] ######
 * Added Stand Movement
+
+###### [Release 1.1] ######
+* Never got released.
   
 ###### [Release 1.2] ######
 * Full menu got reworked to be in one window, window toggle moved to [RAGE -> MAIN -> Anti-Aim Main]
