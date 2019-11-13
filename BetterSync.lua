@@ -35,9 +35,6 @@ local niggerSyncVal;
 local menuPressed = 1;
 local manualAdd = 0;
 
-local inverterKey = 0;
-local invert;
-
 --- Actual code.
 
 local function isMoving() --- kinda made by april#0001
@@ -59,28 +56,6 @@ local function get_value(var, complement) --- by april#0001
     return nil
 
 end
-
-local function setKeys()
-    if inverterKey == 1 then
-        invert = true;
-        draw.Text( 100, 200, "Lel" )
-    else
-        invert = false;
-    end
-end
-
-local function Keyhandler(key1)
-    if key1 then
-        if (inverterKey == 1) then
-            inverterKey = 0
-        else
-            inverterKey = 1;
-        end
-    end
-    setKeys()
-end
-
-
 
 local function fakelag()
 
@@ -173,19 +148,19 @@ local function desync()
     end
 
     local dv = 0;
-    local width = desyncRange:GetValue();
     local invert;
 
     if (InverterKey:GetValue() ~= 0) then
         if (input.IsButtonPressed(InverterKey:GetValue())) then
-            Keyhandler(true)
+            invert = true
         end
     end
 
     if invert then
-        width = width * -1
-        draw.Text( 100, 200, "INVERTED" )
+        desyncRange:SetValue(desyncRange:GetValue()*-1)
     end
+
+    local width = desyncRange:GetValue();
 
     if width < 0 then
         dv = 3
@@ -375,6 +350,59 @@ local function mainManualAA()
         draw_indicator()
     end 
 end
+
+--- Auto updater by ShadyRetard/Shady#0001
+
+--- Variables
+
+local SCRIPT_FILE_NAME = GetScriptName();
+local SCRIPT_FILE_ADDR = "https://raw.githubusercontent.com/superyor/BetterSync/master/BetterSync.lua";
+local VERSION_FILE_ADDR = "https://raw.githubusercontent.com/superyor/BetterSync/master/version.txt";
+local VERSION_NUMBER = "1.2.1";
+
+local version_check_done = false;
+local update_downloaded = false;
+local update_available = false;
+
+--- Actual code
+
+local function updateEventHandler()
+    if (update_available and not update_downloaded) then
+        if (gui.GetValue("lua_allow_cfg") == false) then
+            draw.Color(255, 0, 0, 255);
+            draw.Text(0, 0, "[BetterSync] An update is available, please enable Lua Allow Config and Lua Editing in the settings tab");
+        else
+            local new_version_content = http.Get(SCRIPT_FILE_ADDR);
+            local old_script = file.Open(SCRIPT_FILE_NAME, "w");
+            old_script:Write(new_version_content);
+            old_script:Close();
+            update_available = false;
+            update_downloaded = true;
+        end
+    end
+
+    if (update_downloaded) then
+        draw.Color(255, 0, 0, 255);
+        draw.Text(0, 0, "[BetterSync] An update has automatically been downloaded, please reload the BetterSync script");
+        return;
+    end
+
+    if (not version_check_done) then
+        if (gui.GetValue("lua_allow_http") == false) then
+            draw.Color(255, 0, 0, 255);
+            draw.Text(0, 0, "[BetterSync] Please enable Lua HTTP Connections in your settings tab to use this script");
+            return;
+        end
+
+        version_check_done = true;
+        local version = http.Get(VERSION_FILE_ADDR);
+        if (version ~= VERSION_NUMBER) then
+            update_available = true;
+        end
+    end
+end
+
+callbacks.Register("Draw", updateEventHandler);
 
 callbacks.Register( "Draw", function()
     menu()
