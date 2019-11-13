@@ -22,3 +22,7 @@ better.
 ###### [Release 1.2b] ######
 * Fixed bug where the Manual Antiaim would crash.
 
+###### [Release 1.2.1] ######
+* Fixed Inverter Key [Thanks to gowork88#1556 for telling me my issue]
+* Added Automatic updates by ShadyRetard/Shady#0001
+
