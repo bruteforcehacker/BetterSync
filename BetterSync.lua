@@ -358,7 +358,7 @@ end
 local SCRIPT_FILE_NAME = GetScriptName();
 local SCRIPT_FILE_ADDR = "https://raw.githubusercontent.com/superyor/BetterSync/master/BetterSync.lua";
 local VERSION_FILE_ADDR = "https://raw.githubusercontent.com/superyor/BetterSync/master/version.txt"; --- in case of update i need to update this. (Note by superyu'#7167 "so i don't forget it.")
-local VERSION_NUMBER = "1.2.1a"; --- This too
+local VERSION_NUMBER = "1.2.1b"; --- This too
 
 local version_check_done = false;
 local update_downloaded = false;
@@ -430,7 +430,14 @@ callbacks.Register( "CreateMove", function(pCmd)
         del = globals.CurTime() + 0.05
     end
 
-    if gui.GetValue("standMovement") and gui.GetValue("rbot_active") and not gui.GetValue("lbot_active") then
+    if gui.GetValue("lbot_active") then
+
+        if not gui.GetValue("rbot_active") then
+            return
+        end
+    end
+
+    if gui.GetValue("standMovement") then
         if switch then
             pCmd:SetSideMove(2)
         else
