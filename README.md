@@ -32,7 +32,7 @@ better.
   * Hotfix r1.2.1a_pub: Made legitbot security triggers better.
   * Hotfix r1.2.1b_pub: Fixed minor security trigger issue.
 
-# Contact: #
+## Contact: ##
 * E-Mail: superyu.development@gmail.com
 * Discord: superyu'#7167
 * Steam: https://steamcommunity.com/id/Superyu1337/
